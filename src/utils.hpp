@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace CommonFunctions
+namespace Common
 {
 
 void terminalGotoXY(int x,int y);

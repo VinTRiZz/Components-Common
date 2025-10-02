@@ -4,7 +4,7 @@
 #include <chrono>
 #include <random>
 
-namespace CommonFunctions
+namespace Common
 {
 
 void terminalGotoXY(int x, int y)

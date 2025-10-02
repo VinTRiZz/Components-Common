@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Library name
-set(LIBRARY_NAME CommonFunctions)
+set(LIBRARY_NAME Common)
 
 # Check if project is self-hosted
 if (NOT DEFINED PROJECT_NAME)

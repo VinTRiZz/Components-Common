@@ -18,6 +18,18 @@ void terminalGotoXY(int x, int y)
 #endif // __linux__
 }
 
+std::pair<int, int> terminalGetXY()
+{
+#ifdef __linux__
+    return {};
+#else
+    HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);  // get console handle
+    CONSOLE_SCREEN_BUFFER_INFO csbi;        // screen buffer information
+    GetConsoleScreenBufferInfo(hc, &csbi);      // Get screen info & size
+    return std::make_pair(csbi.dwCursorPosition.X, csbi.dwCursorPosition.Y);
+#endif // __linux__
+}
+
 std::string createRandomString(unsigned int stringSize) {
     std::random_device rd;
     std::mt19937 gen(rd());

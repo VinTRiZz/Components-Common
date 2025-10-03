@@ -44,11 +44,12 @@ function(LINK_COMPONENT TARGET_NAME COMPONENT_ROOT_DIR COMPONENT_NAME)
 endfunction()
 
 # Packages
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core)
-find_package(Qt5 REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 set(
     TARGET_LINKED_LIBS
     Qt5::Core
+    Qt5::Widgets
 )
 
 # Qt configuration
@@ -60,7 +61,7 @@ set(CMAKE_AUTORCC ON)
 add_library(${LIBRARY_NAME} SHARED)
 target_link_libraries(${LIBRARY_NAME} PRIVATE ${TARGET_LINKED_LIBS} )
 
-# LINK_COMPONENT(${LIBRARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/depends Logger)
+LINK_COMPONENT(${LIBRARY_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/depends Logger)
 
 # Files
 file(GLOB_RECURSE HEADERS "src/*.hpp" "src/*.h")

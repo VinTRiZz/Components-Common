@@ -1,1 +1,1 @@
-#include "../../../src/applicationsettings.h"
+#include "../../../src/applicationsettings.hpp"

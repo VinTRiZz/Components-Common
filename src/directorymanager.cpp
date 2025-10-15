@@ -4,6 +4,8 @@
 #include <QDir>
 #include <QFileInfo>
 
+namespace Common {
+
 DirectoryManager::DirectoryManager() {
 
 }
@@ -57,6 +59,12 @@ QDir DirectoryManager::getDirectory(DirectoryType dtype) const
     return QDir(m_rootDirectory + QDir::separator() + m_systemDirectoryPaths.at(dtype));
 }
 
+QDir DirectoryManager::getDirectoryStatic(DirectoryType dtype)
+{
+    auto& inst = getInstance();
+    return inst.getDirectory(dtype);
+}
+
 void DirectoryManager::checkup() {
     if (m_rootDirectory.isNull()) {
         m_rootDirectory = "Approot";
@@ -68,4 +76,6 @@ void DirectoryManager::checkup() {
     m_systemDirectoryPaths[DirectoryType::Temporary]    = "tmp";
 
     createDirectories(m_systemDirectoryPaths, m_rootDirectory);
+}
+
 }

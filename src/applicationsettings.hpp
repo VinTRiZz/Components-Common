@@ -6,6 +6,8 @@
 
 class QSettings;
 
+namespace Common {
+
 class ApplicationSettings : public boost::noncopyable {
 public:
     const QString APPLICATION_SETTINGS_FILE_PATH{"default.ini"};
@@ -26,3 +28,5 @@ protected:
     virtual void readSettings(QSettings& settingsFile);
     virtual void writeSettings(QSettings& settingsFile) const;
 };
+
+}

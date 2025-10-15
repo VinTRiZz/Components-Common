@@ -3,8 +3,7 @@
 #include <string>
 #include <map>
 
-namespace Common
-{
+namespace Common {
 
 void terminalGotoXY(int x,int y);
 std::pair<int, int> terminalGetXY();

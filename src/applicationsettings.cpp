@@ -9,6 +9,8 @@
 
 #include <Components/Logger/Logger.h>
 
+namespace Common {
+
 ApplicationSettings& ApplicationSettings::getInstance() {
     static ApplicationSettings inst;
     return inst;
@@ -52,5 +54,7 @@ void ApplicationSettings::readSettings(QSettings &settingsFile) {
 }
 
 void ApplicationSettings::writeSettings(QSettings &settingsFile) const {
+
+}
 
 }

@@ -5,6 +5,8 @@
 #include <boost/noncopyable.hpp>
 #include <map>
 
+namespace Common {
+
 class DirectoryManager : public boost::noncopyable {
     DirectoryManager();
 
@@ -24,6 +26,7 @@ public:
         Temporary,      // Временные файлы
     };
     QDir getDirectory(DirectoryType dtype) const;
+    static QDir getDirectoryStatic(DirectoryType dtype);
 
 private:
     void checkup();
@@ -34,3 +37,5 @@ private:
     QString m_rootDirectory;
     std::map<DirectoryType, QString> m_systemDirectoryPaths;
 };
+
+}

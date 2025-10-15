@@ -17,11 +17,12 @@ public:
     void loadSettings(const QString& configPath);
     void saveSettings(const QString& configPath) const;
 
-private:
-    ApplicationSettings();
     ~ApplicationSettings();
 
+protected:
+    ApplicationSettings();
+
     // Для дочерних классов
-    virtual void readSettings(const QSettings& settingsFile) {}
-    virtual void writeSettings(const QSettings& settingsFile) const {}
+    virtual void readSettings(QSettings& settingsFile);
+    virtual void writeSettings(QSettings& settingsFile) const;
 };

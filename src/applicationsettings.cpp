@@ -46,3 +46,11 @@ void ApplicationSettings::saveSettings(const QString& configPath) const {
 ApplicationSettings::ApplicationSettings() {}
 
 ApplicationSettings::~ApplicationSettings() {}
+
+void ApplicationSettings::readSettings(QSettings &settingsFile) {
+
+}
+
+void ApplicationSettings::writeSettings(QSettings &settingsFile) const {
+
+}

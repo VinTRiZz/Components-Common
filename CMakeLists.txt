@@ -5,9 +5,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Library name
 set(LIBRARY_NAME Common)
-if (TARGET ${LIBRARY_NAME})
-    return()
-endif()
 
 # Check if project is self-hosted
 if (NOT DEFINED PROJECT_NAME)

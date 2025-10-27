@@ -5,11 +5,35 @@
 
 #include <QSettings>
 
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QLabel>
+
 #include "directorymanager.hpp"
 
 #include <Components/Logger/Logger.h>
 
 namespace Common {
+
+ApplicationSettings::ApplicationSettings() {}
+
+ApplicationSettings::~ApplicationSettings() {}
+
+void ApplicationSettings::addSetting(const std::shared_ptr<AppSetting>& pSetting)
+{
+    m_settings.insert(pSetting);
+}
+
+std::shared_ptr<AppSetting> ApplicationSettings::getSetting(const QString &settingName) const
+{
+    for (const auto& pSetting : m_settings) {
+        if (pSetting->getName() == settingName) {
+            return pSetting;
+        }
+    }
+    return nullptr;
+}
 
 ApplicationSettings& ApplicationSettings::getInstance() {
     static ApplicationSettings inst;
@@ -24,7 +48,9 @@ void ApplicationSettings::loadSettings(const QString& configPath) {
     LOG_INFO("Loading settings from file:", configPath);
 
     QSettings settings(configPath, QSettings::IniFormat);
-    readSettings(settings);
+    for (auto& sett : m_settings) {
+        sett->readSettings(settings);
+    }
 
     LOG_OK("Settings loaded");
 }
@@ -39,22 +65,94 @@ void ApplicationSettings::saveSettings(const QString& configPath) const {
 
     QSettings settings(configPath, QSettings::IniFormat);
     settings.clear();
-    writeSettings(settings);
+    for (auto& sett : m_settings) {
+        sett->writeSettings(settings);
+    }
     settings.sync();
 
     LOG_OK("Setgings saved");
 }
 
-ApplicationSettings::ApplicationSettings() {}
-
-ApplicationSettings::~ApplicationSettings() {}
-
-void ApplicationSettings::readSettings(QSettings &settingsFile) {
+AppSetting::AppSetting(const QString &settingName) :
+    m_settingName {settingName}
+{
 
 }
 
-void ApplicationSettings::writeSettings(QSettings &settingsFile) const {
+QString AppSetting::getName() const
+{
+    return m_settingName;
+}
 
+void AppSetting::reset()
+{
+    for (auto v : getAllEnums()) {
+        m_propertiesMap.emplace(getPropertyName(v), QVariant());
+    }
+}
+
+void AppSetting::readSettings(QSettings &settingsFile)
+{
+    for (auto& [propName, propValue] : m_propertiesMap) {
+        propValue = settingsFile.value(propName, {});
+    }
+}
+
+void AppSetting::writeSettings(QSettings &settingsFile) const
+{
+    for (auto& [propName, propValue] : m_propertiesMap) {
+        settingsFile.setValue(propName, propValue);
+    }
+}
+
+QWidget* AppSetting::createEditor(QWidget *parent) const
+{
+    auto pRes = new QWidget(parent);
+    auto pLayout = new QVBoxLayout;
+    pRes->setLayout(pLayout);
+
+    for (auto& [propName, propValue] : m_propertiesMap) {
+        auto pSubLayout = new QHBoxLayout();
+
+        auto pLabel = new QLabel(propName, pRes);
+        auto pEditor = new QLineEdit(propValue.toString(), pRes);
+
+        pSubLayout->addWidget(pLabel);
+        pSubLayout->addWidget(pEditor);
+        pLayout->addLayout(pSubLayout);
+    }
+
+    return pRes;
+}
+
+void AppSetting::setValue(const QString &valueName, const QVariant &value)
+{
+    m_propertiesMap[valueName] = value;
+}
+
+void AppSetting::setValue(int valueEnum, const QVariant &value)
+{
+    m_propertiesMap[getPropertyName(valueEnum)] = value;
+}
+
+QVariant AppSetting::valueByEnum(int enumValue) const
+{
+    return m_propertiesMap.at(getPropertyName(enumValue));
+}
+
+QVariant AppSetting::valueByKey(const QString &valueName) const
+{
+    return m_propertiesMap.at(valueName);
+}
+
+QString AppSetting::getPropertyName(int enumValue) const
+{
+    return {};
+}
+
+std::set<int> AppSetting::getAllEnums() const
+{
+    return {};
 }
 
 }

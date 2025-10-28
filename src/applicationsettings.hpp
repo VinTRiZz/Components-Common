@@ -18,7 +18,7 @@ class AppSetting
 {
     QString m_settingName;
 public:
-    AppSetting(const QString& settingName = "UNDEFINED-SETTING");
+    AppSetting(const QString& settingName);
 
     QString getName() const;
     void reset();
@@ -28,6 +28,10 @@ public:
 
     virtual QWidget *createEditor(QWidget* parent) const;
 
+    void setValueName(int valueEnum, const QString &name);
+    QString getValueName(int enumValue) const;
+    std::set<int> getAllEnums() const;
+
     void setValue(const QString& valueName, const QVariant& value);
     void setValue(int valueEnum, const QVariant& value);
 
@@ -36,10 +40,7 @@ public:
 
 private:
     std::map<QString, QVariant> m_propertiesMap;
-
-protected:
-    virtual QString getPropertyName(int enumValue) const;
-    virtual std::set<int> getAllEnums() const;
+    std::map<int, QString> m_registeredProperties;
 };
 
 class ApplicationSettings : public boost::noncopyable {
@@ -51,6 +52,7 @@ class ApplicationSettings : public boost::noncopyable {
 public:
     ~ApplicationSettings();
 
+    void addSetting(const QString& settingName);
     void addSetting(const std::shared_ptr<AppSetting> &pSetting);
     std::shared_ptr<AppSetting> getSetting(const QString& settingName) const;
 

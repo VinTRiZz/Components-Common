@@ -20,6 +20,11 @@ ApplicationSettings::ApplicationSettings() {}
 
 ApplicationSettings::~ApplicationSettings() {}
 
+void ApplicationSettings::addSetting(const QString &settingName)
+{
+    m_settings.insert(std::make_shared<AppSetting>(settingName));
+}
+
 void ApplicationSettings::addSetting(const std::shared_ptr<AppSetting>& pSetting)
 {
     m_settings.insert(pSetting);
@@ -87,12 +92,18 @@ QString AppSetting::getName() const
 void AppSetting::reset()
 {
     for (auto v : getAllEnums()) {
-        m_propertiesMap.emplace(getPropertyName(v), QVariant());
+        m_propertiesMap.emplace(getValueName(v), QVariant());
     }
 }
 
 void AppSetting::readSettings(QSettings &settingsFile)
 {
+    if (!m_registeredProperties.empty()) {
+        for (auto& [key, v] : m_registeredProperties) {
+            m_propertiesMap.emplace(v, QVariant());
+        }
+    }
+
     for (auto& [propName, propValue] : m_propertiesMap) {
         propValue = settingsFile.value(propName, {});
     }
@@ -125,6 +136,11 @@ QWidget* AppSetting::createEditor(QWidget *parent) const
     return pRes;
 }
 
+void AppSetting::setValueName(int valueEnum, const QString &name)
+{
+    m_registeredProperties[valueEnum] = name;
+}
+
 void AppSetting::setValue(const QString &valueName, const QVariant &value)
 {
     m_propertiesMap[valueName] = value;
@@ -132,12 +148,12 @@ void AppSetting::setValue(const QString &valueName, const QVariant &value)
 
 void AppSetting::setValue(int valueEnum, const QVariant &value)
 {
-    m_propertiesMap[getPropertyName(valueEnum)] = value;
+    m_propertiesMap[getValueName(valueEnum)] = value;
 }
 
 QVariant AppSetting::valueByEnum(int enumValue) const
 {
-    return m_propertiesMap.at(getPropertyName(enumValue));
+    return m_propertiesMap.at(getValueName(enumValue));
 }
 
 QVariant AppSetting::valueByKey(const QString &valueName) const
@@ -145,14 +161,21 @@ QVariant AppSetting::valueByKey(const QString &valueName) const
     return m_propertiesMap.at(valueName);
 }
 
-QString AppSetting::getPropertyName(int enumValue) const
+QString AppSetting::getValueName(int enumValue) const
 {
+    if (m_registeredProperties.count(enumValue)) {
+        return m_registeredProperties.at(enumValue);
+    }
     return {};
 }
 
 std::set<int> AppSetting::getAllEnums() const
 {
-    return {};
+    std::set<int> res;
+    for (auto& [key, val] : m_registeredProperties) {
+        res.insert(key);
+    }
+    return res;
 }
 
 }

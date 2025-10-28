@@ -22,6 +22,7 @@ public:
     enum class DirectoryType : int {
         Config,         // Конфигурации
         Logs,           // Логи приложения
+        Plugins,        // Плагины приложения
         Backup,         // Бэкапы файлов
         Temporary,      // Временные файлы
     };

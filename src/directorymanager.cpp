@@ -72,6 +72,7 @@ void DirectoryManager::checkup() {
 
     m_systemDirectoryPaths[DirectoryType::Config]       = "config";
     m_systemDirectoryPaths[DirectoryType::Logs]         = "log";
+    m_systemDirectoryPaths[DirectoryType::Plugins]      = "plugins";
     m_systemDirectoryPaths[DirectoryType::Backup]       = "backup";
     m_systemDirectoryPaths[DirectoryType::Temporary]    = "tmp";
 

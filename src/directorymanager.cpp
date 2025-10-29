@@ -56,7 +56,7 @@ void DirectoryManager::createDirectories(const MapT& dirsMap,
 
 QDir DirectoryManager::getDirectory(DirectoryType dtype) const
 {
-    return QDir(m_rootDirectory + QDir::separator() + m_systemDirectoryPaths.at(dtype));
+    return QDir(m_rootDirectory + QDir::separator() + m_directoryPaths.at(dtype));
 }
 
 QDir DirectoryManager::getDirectoryStatic(DirectoryType dtype)
@@ -70,13 +70,13 @@ void DirectoryManager::checkup() {
         m_rootDirectory = "Approot";
     }
 
-    m_systemDirectoryPaths[DirectoryType::Config]       = "config";
-    m_systemDirectoryPaths[DirectoryType::Logs]         = "log";
-    m_systemDirectoryPaths[DirectoryType::Plugins]      = "plugins";
-    m_systemDirectoryPaths[DirectoryType::Backup]       = "backup";
-    m_systemDirectoryPaths[DirectoryType::Temporary]    = "tmp";
+    m_directoryPaths[DirectoryType::Config]       = "config";
+    m_directoryPaths[DirectoryType::Logs]         = "log";
+    m_directoryPaths[DirectoryType::Plugins]      = "plugins";
+    m_directoryPaths[DirectoryType::Backup]       = "backup";
+    m_directoryPaths[DirectoryType::Temporary]    = "tmp";
 
-    createDirectories(m_systemDirectoryPaths, m_rootDirectory);
+    createDirectories(m_directoryPaths, m_rootDirectory);
 }
 
 }

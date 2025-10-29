@@ -36,7 +36,7 @@ private:
     void createDirectories(const MapT& dirsMap, const QString& rootdir);
 
     QString m_rootDirectory;
-    std::map<DirectoryType, QString> m_systemDirectoryPaths;
+    std::map<DirectoryType, QString> m_directoryPaths;
 };
 
 }

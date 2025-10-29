@@ -16,45 +16,53 @@ namespace Common {
 
 class AppSetting
 {
-    QString m_settingName;
 public:
-    AppSetting(const QString& settingName);
+    AppSetting();
 
+    void setName(const QString& name);
     QString getName() const;
+
+    void setValue(const QVariant& v);
+    QVariant getValue() const;
+
+    void setAvailableValues(const std::map<QString, QVariant>& availableValues);
+
+    // Для текста -- кол-во символов
+    void setMin(long long minV);
+    void setMax(long long maxV);
+
     void reset();
 
-    void readSettings(QSettings& settingsFile);
-    void writeSettings(QSettings& settingsFile) const;
-
-    virtual QWidget *createEditor(QWidget* parent) const;
-
-    void setValueName(int valueEnum, const QString &name);
-    QString getValueName(int enumValue) const;
-    std::set<int> getAllEnums() const;
-
-    void setValue(const QString& valueName, const QVariant& value);
-    void setValue(int valueEnum, const QVariant& value);
-
-    QVariant valueByEnum(int enumValue) const;
-    QVariant valueByKey(const QString& valueName) const;
+    QWidget* createTextEditor(QWidget* parent);
+    QWidget* createListEditor(QWidget* parent);
+    QWidget* createColorEditor(QWidget* parent);
+    QWidget* createIntSpinBoxEditor(QWidget* parent, int step = 1);
+    QWidget* createDoubleSpinBoxEditor(QWidget* parent, double step = 0.1);
 
 private:
-    std::map<QString, QVariant> m_propertiesMap;
-    std::map<int, QString> m_registeredProperties;
+    QString     m_selfName;
+    QVariant    m_defaultValue;
+    QVariant    m_currentValue;
+
+    std::map<QString, QVariant> m_availableValues;
+
+    long long m_minV {0};
+    long long m_maxV {std::numeric_limits<long long>::max()};
 };
 
 class ApplicationSettings : public boost::noncopyable {
 
     const QString APPLICATION_SETTINGS_FILE_PATH{"default.ini"};
-    std::set<std::shared_ptr<AppSetting> > m_settings;
+    std::map<QString, std::set<std::shared_ptr<AppSetting> > > m_settingSections;
 
     ApplicationSettings();
 public:
     ~ApplicationSettings();
 
-    void addSetting(const QString& settingName);
-    void addSetting(const std::shared_ptr<AppSetting> &pSetting);
-    std::shared_ptr<AppSetting> getSetting(const QString& settingName) const;
+    bool hasSetting(const QString& section, const QString& settingName);
+    void addSetting(const QString& section, const QString& settingName);
+    void addSetting(const QString& section, const std::shared_ptr<AppSetting> &pSetting);
+    std::shared_ptr<AppSetting> getSetting(const QString& section, const QString& settingName) const;
 
     // Работа с файлом настроек и классом
     static ApplicationSettings& getInstance();

@@ -5,10 +5,16 @@
 
 #include <QSettings>
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QVariant>
+#include <QWidget>
 #include <QLineEdit>
+#include <QComboBox>
+#include <QPushButton>
 #include <QLabel>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QHBoxLayout>
+#include <QColorDialog>
 
 #include "directorymanager.hpp"
 
@@ -20,24 +26,35 @@ ApplicationSettings::ApplicationSettings() {}
 
 ApplicationSettings::~ApplicationSettings() {}
 
-void ApplicationSettings::addSetting(const QString &settingName)
+bool ApplicationSettings::hasSetting(const QString &section, const QString &settingName)
 {
-    m_settings.insert(std::make_shared<AppSetting>(settingName));
+    return (getSetting(section, settingName).use_count() != 0);
 }
 
-void ApplicationSettings::addSetting(const std::shared_ptr<AppSetting>& pSetting)
+void ApplicationSettings::addSetting(const QString &section, const QString &settingName)
 {
-    m_settings.insert(pSetting);
+    auto pSett = std::make_shared<AppSetting>();
+    pSett->setName(settingName);
+    m_settingSections[section].insert(pSett);
 }
 
-std::shared_ptr<AppSetting> ApplicationSettings::getSetting(const QString &settingName) const
+void ApplicationSettings::addSetting(const QString &section, const std::shared_ptr<AppSetting>& pSetting)
 {
-    for (const auto& pSetting : m_settings) {
+    m_settingSections[section].insert(pSetting);
+}
+
+std::shared_ptr<AppSetting> ApplicationSettings::getSetting(const QString &section, const QString &settingName) const
+{
+    if (!m_settingSections.count(section)) {
+        return {};
+    }
+
+    for (const auto& pSetting : m_settingSections.at(section)) {
         if (pSetting->getName() == settingName) {
             return pSetting;
         }
     }
-    return nullptr;
+    return {};
 }
 
 ApplicationSettings& ApplicationSettings::getInstance() {
@@ -48,13 +65,21 @@ ApplicationSettings& ApplicationSettings::getInstance() {
 void ApplicationSettings::loadSettings(const QString& configPath) {
     if (configPath.isNull()) {
         return loadSettings(DirectoryManager::getInstance().getDirectory(DirectoryManager::DirectoryType::Config).absolutePath() + QDir::separator() +
-                                 APPLICATION_SETTINGS_FILE_PATH);
+                            APPLICATION_SETTINGS_FILE_PATH);
     }
     LOG_INFO("Loading settings from file:", configPath);
 
     QSettings settings(configPath, QSettings::IniFormat);
-    for (auto& sett : m_settings) {
-        sett->readSettings(settings);
+
+    for (auto& groupName : settings.childGroups()) {
+        for (auto& settName : settings.childKeys()) {
+            if (auto pSett = getSetting(groupName, settName); pSett) {
+                pSett->setValue(settings.value(settName));
+                continue;
+            }
+            addSetting(groupName, settName);
+            getSetting(groupName, settName)->setValue(settings.value(settName));
+        }
     }
 
     LOG_OK("Settings loaded");
@@ -63,119 +88,189 @@ void ApplicationSettings::loadSettings(const QString& configPath) {
 void ApplicationSettings::saveSettings(const QString& configPath) const {
     if (configPath.isNull()) {
         return saveSettings(DirectoryManager::getInstance().getDirectory(DirectoryManager::DirectoryType::Config).absolutePath() + QDir::separator() +
-                                 APPLICATION_SETTINGS_FILE_PATH);
+                            APPLICATION_SETTINGS_FILE_PATH);
     }
 
     LOG_INFO("Saving settings to file:", configPath);
 
     QSettings settings(configPath, QSettings::IniFormat);
     settings.clear();
-    for (auto& sett : m_settings) {
-        sett->writeSettings(settings);
+    for (auto& [settGroup, setts] : m_settingSections) {
+        settings.beginGroup(settGroup);
+        for (auto& pSett : setts) {
+            settings.setValue(pSett->getName(), pSett->getValue());
+        }
+        settings.endGroup();
     }
     settings.sync();
 
     LOG_OK("Setgings saved");
 }
 
-AppSetting::AppSetting(const QString &settingName) :
-    m_settingName {settingName}
+AppSetting::AppSetting()
 {
 
+}
+
+void AppSetting::setName(const QString &name)
+{
+    m_selfName = name;
 }
 
 QString AppSetting::getName() const
 {
-    return m_settingName;
+    return m_selfName;
 }
 
 void AppSetting::reset()
 {
-    for (auto v : getAllEnums()) {
-        m_propertiesMap.emplace(getValueName(v), QVariant());
-    }
+    m_currentValue = m_defaultValue;
 }
 
-void AppSetting::readSettings(QSettings &settingsFile)
+
+QWidget* AppSetting::createTextEditor(QWidget* parent)
 {
-    if (!m_registeredProperties.empty()) {
-        for (auto& [key, v] : m_registeredProperties) {
-            m_propertiesMap.emplace(v, QVariant());
+    QLineEdit* editor = new QLineEdit(parent);
+    editor->setText(m_currentValue.toString());
+
+    // Соединение сигнала изменения текста с установкой значения
+    QObject::connect(editor, &QLineEdit::textChanged, [this, editor](const QString& text) {
+        setValue(text);
+    });
+
+    return editor;
+}
+
+QWidget* AppSetting::createListEditor(QWidget* parent)
+{
+    QComboBox* editor = new QComboBox(parent);
+
+    // Заполнение комбобокса зарегистрированными значениями
+    for (const auto& [valueName, value] : m_availableValues) {
+        editor->addItem(valueName, value);
+    }
+
+    // Установка текущего значения
+    int index = editor->findData(m_currentValue);
+    if (index >= 0) {
+        editor->setCurrentIndex(index);
+    }
+
+    // Соединение сигнала изменения выбора с установкой значения
+    QObject::connect(editor, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                     [this, editor](int index) {
+        if (index >= 0) {
+            QVariant data = editor->itemData(index);
+            setValue(data);
         }
-    }
+    });
 
-    for (auto& [propName, propValue] : m_propertiesMap) {
-        propValue = settingsFile.value(propName, {});
-    }
+    return editor;
 }
 
-void AppSetting::writeSettings(QSettings &settingsFile) const
+QWidget* AppSetting::createColorEditor(QWidget* parent)
 {
-    for (auto& [propName, propValue] : m_propertiesMap) {
-        settingsFile.setValue(propName, propValue);
-    }
+    QWidget* container = new QWidget(parent);
+    QHBoxLayout* layout = new QHBoxLayout(container);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    QLabel* colorLabel = new QLabel(container);
+    colorLabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    colorLabel->setAutoFillBackground(true);
+    colorLabel->setMinimumSize(30, 20);
+
+    QPushButton* colorButton = new QPushButton("Выбрать цвет", container);
+
+    layout->addWidget(colorLabel);
+    layout->addWidget(colorButton);
+
+    // Функция для обновления отображения цвета
+    auto updateColorDisplay = [colorLabel](const QColor& color) {
+        QPalette palette = colorLabel->palette();
+        palette.setColor(QPalette::Window, color);
+        colorLabel->setPalette(palette);
+        colorLabel->setToolTip(color.name());
+    };
+
+    // Установка начального цвета
+    QColor currentColor = m_currentValue.isNull() ? Qt::white : m_currentValue.value<QColor>();
+    updateColorDisplay(currentColor);
+
+    // Соединение кнопки с диалогом выбора цвета
+    QObject::connect(colorButton, &QPushButton::clicked,
+                     [this, updateColorDisplay, container]() {
+        QColor currentColor = m_currentValue.isNull() ? Qt::white : m_currentValue.value<QColor>();
+
+        QColor color = QColorDialog::getColor(currentColor, container, "Выберите цвет");
+        if (color.isValid()) {
+            setValue(color);
+            updateColorDisplay(color);
+        }
+    });
+
+    return container;
 }
 
-QWidget* AppSetting::createEditor(QWidget *parent) const
+QWidget* AppSetting::createIntSpinBoxEditor(QWidget* parent, int step)
 {
-    auto pRes = new QWidget(parent);
-    auto pLayout = new QVBoxLayout;
-    pRes->setLayout(pLayout);
+    QSpinBox* editor = new QSpinBox(parent);
+    editor->setRange(m_minV, m_maxV);
+    editor->setSingleStep(step);
 
-    for (auto& [propName, propValue] : m_propertiesMap) {
-        auto pSubLayout = new QHBoxLayout();
+    // Установка текущего значения
+    editor->setValue(m_currentValue.toInt());
 
-        auto pLabel = new QLabel(propName, pRes);
-        auto pEditor = new QLineEdit(propValue.toString(), pRes);
+    // Соединение сигнала изменения значения
+    QObject::connect(editor, QOverload<int>::of(&QSpinBox::valueChanged),
+                     [this](int value) {
+        setValue(value);
+    });
 
-        pSubLayout->addWidget(pLabel);
-        pSubLayout->addWidget(pEditor);
-        pLayout->addLayout(pSubLayout);
-    }
-
-    return pRes;
+    return editor;
 }
 
-void AppSetting::setValueName(int valueEnum, const QString &name)
+QWidget* AppSetting::createDoubleSpinBoxEditor(QWidget* parent, double step)
 {
-    m_registeredProperties[valueEnum] = name;
+    QDoubleSpinBox* editor = new QDoubleSpinBox(parent);
+    editor->setRange(m_minV, m_maxV);
+    editor->setSingleStep(step);
+    editor->setDecimals(3); // 3 знака после запятой по умолчанию
+
+    // Установка текущего значения
+    editor->setValue(m_currentValue.toDouble());
+
+    // Соединение сигнала изменения значения
+    QObject::connect(editor, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                     [this](double value) {
+        setValue(value);
+    });
+
+    return editor;
 }
 
-void AppSetting::setValue(const QString &valueName, const QVariant &value)
+void AppSetting::setValue(const QVariant &value)
 {
-    m_propertiesMap[valueName] = value;
+    m_currentValue = value;
 }
 
-void AppSetting::setValue(int valueEnum, const QVariant &value)
+QVariant AppSetting::getValue() const
 {
-    m_propertiesMap[getValueName(valueEnum)] = value;
+    return m_currentValue;
 }
 
-QVariant AppSetting::valueByEnum(int enumValue) const
+void AppSetting::setAvailableValues(const std::map<QString, QVariant> &availableValues)
 {
-    return m_propertiesMap.at(getValueName(enumValue));
+    m_availableValues = availableValues;
 }
 
-QVariant AppSetting::valueByKey(const QString &valueName) const
+void AppSetting::setMin(long long minV)
 {
-    return m_propertiesMap.at(valueName);
+    m_minV = minV;
 }
 
-QString AppSetting::getValueName(int enumValue) const
+void AppSetting::setMax(long long maxV)
 {
-    if (m_registeredProperties.count(enumValue)) {
-        return m_registeredProperties.at(enumValue);
-    }
-    return {};
-}
-
-std::set<int> AppSetting::getAllEnums() const
-{
-    std::set<int> res;
-    for (auto& [key, val] : m_registeredProperties) {
-        res.insert(key);
-    }
-    return res;
+    m_maxV = maxV;
 }
 
 }

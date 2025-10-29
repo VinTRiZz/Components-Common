@@ -64,9 +64,10 @@ ApplicationSettings& ApplicationSettings::getInstance() {
 
 void ApplicationSettings::loadSettings(const QString& configPath) {
     if (configPath.isNull()) {
-        return loadSettings(DirectoryManager::getInstance().getDirectory(DirectoryManager::DirectoryType::Config).absolutePath() + QDir::separator() +
-                            APPLICATION_SETTINGS_FILE_PATH);
+        return loadSettings(m_currentConfigsPath);
     }
+
+    m_currentConfigsPath = configPath;
     LOG_INFO("Loading settings from file:", configPath);
 
     QSettings settings(configPath, QSettings::IniFormat);
@@ -87,8 +88,7 @@ void ApplicationSettings::loadSettings(const QString& configPath) {
 
 void ApplicationSettings::saveSettings(const QString& configPath) const {
     if (configPath.isNull()) {
-        return saveSettings(DirectoryManager::getInstance().getDirectory(DirectoryManager::DirectoryType::Config).absolutePath() + QDir::separator() +
-                            APPLICATION_SETTINGS_FILE_PATH);
+        return saveSettings(m_currentConfigsPath);
     }
 
     LOG_INFO("Saving settings to file:", configPath);

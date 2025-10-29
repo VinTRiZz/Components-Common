@@ -51,9 +51,8 @@ private:
 };
 
 class ApplicationSettings : public boost::noncopyable {
-
-    const QString APPLICATION_SETTINGS_FILE_PATH{"default.ini"};
     std::map<QString, std::set<std::shared_ptr<AppSetting> > > m_settingSections;
+    QString m_currentConfigsPath {"default.ini"};
 
     ApplicationSettings();
 public:
@@ -68,8 +67,8 @@ public:
     static ApplicationSettings& getInstance();
 
     // Работа с файлом настроек для внешних целей (загрузка профилей, например)
-    void loadSettings(const QString& configPath);
-    void saveSettings(const QString& configPath) const;
+    void loadSettings(const QString& configPath = {});
+    void saveSettings(const QString& configPath = {}) const;
 };
 
 }

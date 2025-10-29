@@ -58,6 +58,7 @@ void FileImportManager::setRootDirectory(const std::string &rDir)
     if (!std::filesystem::exists(m_rootDirectory)) {
         throw std::invalid_argument("Invalid directory to be root for file import manager");
     }
+    clearCache();
 }
 
 void FileImportManager::setFileCacheSize(unsigned int cacheFileCount)

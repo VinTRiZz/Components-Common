@@ -14,4 +14,6 @@ uint64_t getLinuxEpoch();
 
 int generateNumber(int min, int max);
 
+std::string getCurrentTimestampFormatted();
+
 }

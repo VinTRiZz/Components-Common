@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <chrono>
 #include <random>
+#include <iomanip>
+#include <sstream>
 
 namespace Common
 {
@@ -73,6 +75,35 @@ int generateNumber(int min, int max)
 
     // Generate and return the random number
     return uni(rng);
+}
+
+std::string getCurrentTimestampFormatted() {
+#ifdef QT_CORE
+    return QDateTime::currentDateTime()
+            .toString("yyyy-MM-dd_hh:mm:ss")
+            .toStdString();
+#else
+    auto now = std::chrono::system_clock::now();
+    auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now_ms);
+    std::tm now_tm;
+
+    // Use localtime_s for thread safety (Windows)
+#ifdef _WIN32
+    localtime_s(&now_tm, &now_c);
+#else
+    // Use localtime_r for thread safety (POSIX)
+    localtime_r(&now_c, &now_tm);
+#endif
+
+    std::ostringstream oss;
+    oss << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S")
+        << '.' << std::setfill('0') << std::setw(3)
+        << (now_ms.time_since_epoch().count() % 1000);
+
+    return oss.str();
+#endif // QT_CORE
 }
 
 }

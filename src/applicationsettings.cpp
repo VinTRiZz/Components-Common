@@ -104,7 +104,7 @@ void ApplicationSettings::saveSettings(const QString& configPath) const {
     }
     settings.sync();
 
-    LOG_OK("Setgings saved");
+    LOG_OK("Settings saved");
 }
 
 AppSetting::AppSetting()

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef QT_WIDGETS_LIB
+
 #include <QLabel>
 #include <QPushButton>
 #include <QWidget>
@@ -96,3 +98,5 @@ QString rectToString(const QRectF& iRect);
 QRectF rectFromString(const QString& iString);
 
 }  // namespace CommonFunctions
+
+#endif // QT_WIDGETS_LIB

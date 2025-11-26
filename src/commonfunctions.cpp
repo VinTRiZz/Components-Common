@@ -180,4 +180,24 @@ QRectF rectFromString(const QString& iString) {
     return res;
 }
 
+QImage readImage(const QString &filePath) {
+    QStringList mimeTypes;
+    foreach (const QByteArray &format, QImageReader::supportedImageFormats()) {
+        mimeTypes.append(QString::fromLatin1(format).toLower());
+    }
+    auto imgExtension = QFileInfo(filePath).suffix().toLower();
+    if (!mimeTypes.contains(imgExtension)) {
+        LOG_ERROR("Unsupportable format:", imgExtension);
+        return {};
+    }
+
+    QImage image;
+    QImageReader reader(filePath);
+    reader.setAutoTransform(true);
+    if (reader.read(&image)) {
+        return image;
+    }
+    return {};
+}
+
 }  // namespace CommonFunctions

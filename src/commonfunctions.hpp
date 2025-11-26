@@ -6,6 +6,9 @@
 #include <QPushButton>
 #include <QWidget>
 
+#include <QImage>
+#include <QImageReader>
+
 namespace CommonFunctions {
 
 /**
@@ -96,6 +99,13 @@ QString rectToString(const QRectF& iRect);
  * @return
  */
 QRectF rectFromString(const QString& iString);
+
+/**
+ * @brief readImage Считать изображение из файла
+ * @param filePath
+ * @return          NULL QImage если не удалось
+ */
+QImage readImage(const QString& filePath);
 
 }  // namespace CommonFunctions
 

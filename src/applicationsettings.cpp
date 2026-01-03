@@ -73,6 +73,7 @@ void ApplicationSettings::loadSettings(const QString& configPath) {
     QSettings settings(configPath, QSettings::IniFormat);
 
     for (auto& groupName : settings.childGroups()) {
+        settings.beginGroup(groupName);
         for (auto& settName : settings.childKeys()) {
             if (auto pSett = getSetting(groupName, settName); pSett) {
                 pSett->setValue(settings.value(settName));
@@ -81,6 +82,7 @@ void ApplicationSettings::loadSettings(const QString& configPath) {
             addSetting(groupName, settName);
             getSetting(groupName, settName)->setValue(settings.value(settName));
         }
+        settings.endGroup();
     }
 
     LOG_OK("Settings loaded");
@@ -98,7 +100,7 @@ void ApplicationSettings::saveSettings(const QString& configPath) const {
     for (auto& [settGroup, setts] : m_settingSections) {
         settings.beginGroup(settGroup);
         for (auto& pSett : setts) {
-            settings.setValue(pSett->getName(), pSett->getValue());
+            settings.setValue(pSett->getName(), pSett->getValue().toString());
         }
         settings.endGroup();
     }

@@ -1,5 +1,7 @@
 #include "applicationsettings.hpp"
 
+#ifdef COMPONENTS_IS_ENABLED_QT
+
 #include <QDateTime>
 #include <QFile>
 
@@ -276,3 +278,5 @@ void AppSetting::setMax(long long maxV)
 }
 
 }
+
+#endif // COMPONENTS_IS_ENABLED_QT

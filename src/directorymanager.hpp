@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef COMPONENTS_IS_ENABLED_QT
+
 #include <QDir>
 #include <QString>
 #include <boost/noncopyable.hpp>
@@ -40,3 +42,5 @@ private:
 };
 
 }
+
+#endif // COMPONENTS_IS_ENABLED_QT

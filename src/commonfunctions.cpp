@@ -1,5 +1,7 @@
 #include "commonfunctions.hpp"
 
+#ifdef COMPONENTS_IS_ENABLED_QT
+
 #include <QColorDialog>
 #include <QFileInfo>
 #include <QImage>
@@ -201,3 +203,5 @@ QImage readImage(const QString &filePath) {
 }
 
 }  // namespace CommonFunctions
+
+#endif // COMPONENTS_IS_ENABLED_QT

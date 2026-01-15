@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef COMPONENTS_IS_ENABLED_QT
+
 #include <boost/noncopyable.hpp>
 
 #include <map>
@@ -72,3 +74,5 @@ public:
 };
 
 }
+
+#endif // COMPONENTS_IS_ENABLED_QT

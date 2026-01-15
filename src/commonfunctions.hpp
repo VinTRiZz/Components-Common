@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef QT_WIDGETS_LIB
+#ifdef COMPONENTS_IS_ENABLED_QT
 
 #include <QLabel>
 #include <QPushButton>

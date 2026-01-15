@@ -1,5 +1,7 @@
 #include "directorymanager.hpp"
 
+#ifdef COMPONENTS_IS_ENABLED_QT
+
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -80,3 +82,5 @@ void DirectoryManager::checkup() {
 }
 
 }
+
+#endif // COMPONENTS_IS_ENABLED_QT

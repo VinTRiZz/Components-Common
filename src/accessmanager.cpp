@@ -69,7 +69,6 @@ void AccessManager::start(unsigned int threadCount) {
         m_threads.emplace_back([this](){
             accessFunction_t nextTask {};
             while (isWorking()) {
-                waitSignal();
                 if (!isWorking()) [[unlikely]] {
                     return;
                 }
@@ -98,9 +97,10 @@ void AccessManager::start(unsigned int threadCount) {
                 if (nextTask) [[likely]]  {
                     std::lock_guard<std::recursive_mutex> lock(m_writerMx);
                     nextTask();
+                } else {
+                    waitSignal();
                 }
             }
-            LOG_DEBUG("S");
         });
     }
 }
@@ -110,14 +110,15 @@ void AccessManager::stop() {
 
     bool isStopped {false};
     while (!isStopped) {
+        emitForAll();
         m_writerMx.lock();
         isStopped = (!m_writer && m_readers.empty());
         m_writerMx.unlock();
-        emitForAll();
     }
 
     for (auto& th : m_threads) {
         if (th.joinable()) {
+            emitForAll();
             th.join();
         }
     }

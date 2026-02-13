@@ -35,7 +35,7 @@ void FileImportManager::updateCache()
     for (auto& dirEntr : std::filesystem::directory_iterator(m_rootDirectory)) {
         addToCache(std::filesystem::path(dirEntr).generic_string());
     }
-    LOG_OK("Cache updated. Found files:", getCacheFileCount());
+    COMPLOG_OK("Cache updated. Found files:", getCacheFileCount());
 }
 
 void FileImportManager::clearCache()
@@ -49,7 +49,7 @@ void FileImportManager::clearCache()
     m_lastUsedFiles.clear();
     m_filePathCache.clear();
     m_filesCache.clear();
-    LOG_INFO("Cache cleared");
+    COMPLOG_INFO("Cache cleared");
 }
 
 void FileImportManager::setRootDirectory(const std::string &rDir)
@@ -120,7 +120,7 @@ std::string FileImportManager::addToCache(const std::string &targetPath, bool fo
     m_filesCache[hash] = targetPath;
     m_lastUsedFiles[targetPath] = info;
 
-    LOG_OK("Added file to cache:", targetPath);
+    COMPLOG_OK("Added file to cache:", targetPath);
     cleanupCache();
     return hash;
 }
@@ -134,7 +134,7 @@ void FileImportManager::removeFromCache(const std::string &targetPath) const
         m_filePathCache.erase(it);
         m_filesCache.erase(hash);
         m_lastUsedFiles.erase(targetPath);
-        LOG_OK("File removed from cache:", targetPath);
+        COMPLOG_OK("File removed from cache:", targetPath);
     }
 }
 
@@ -202,18 +202,18 @@ void FileImportManager::cleanupExpiredFiles()
             ++it;
         }
     }
-    LOG_OK("Expired files removed");
+    COMPLOG_OK("Expired files removed");
 }
 
 void FileImportManager::preloadDirectory(const std::string &directory)
 {
-    LOG_INFO("Preloading directory");
+    COMPLOG_INFO("Preloading directory");
     for (const auto& entry : std::filesystem::directory_iterator(directory)) {
         if (entry.is_regular_file()) {
             addToCache(entry.path().generic_string());
         }
     }
-    LOG_OK("Directory preloaded");
+    COMPLOG_OK("Directory preloaded");
 }
 
 std::string FileImportManager::getFileHash(const std::string &targetPath) const
@@ -227,7 +227,7 @@ std::string FileImportManager::getFileHash(const std::string &targetPath) const
 
 void FileImportManager::cleanupCache()
 {
-    LOG_INFO("Removing old cached files");
+    COMPLOG_INFO("Removing old cached files");
     while (m_filePathCache.size() > m_fileCacheSize) {
         auto oldest = std::min_element(m_lastUsedFiles.begin(), m_lastUsedFiles.end(),
             [](const auto& a, const auto& b) {
@@ -240,7 +240,7 @@ void FileImportManager::cleanupCache()
         }
     }
 
-    LOG_INFO("Removing small cached files");
+    COMPLOG_INFO("Removing small cached files");
     size_t currentSizeMb = getCacheSize() / (1024 * 1024);
     while (currentSizeMb > m_maxFileCacheSizeMb) {
         auto smallest = std::min_element(m_lastUsedFiles.begin(), m_lastUsedFiles.end(),
@@ -254,7 +254,7 @@ void FileImportManager::cleanupCache()
             m_lastUsedFiles.erase(smallest);
         }
     }
-    LOG_INFO("Cache cleaned up");
+    COMPLOG_INFO("Cache cleaned up");
 }
 
 void FileImportManager::updateFileAccessTime(const std::string &targetPath)
@@ -276,8 +276,8 @@ bool FileImportManager::copyFileToCache(const std::string &sourcePath, const std
                                  std::filesystem::copy_options::overwrite_existing);
         return true;
     } catch (std::exception& ex) {
-        LOG_ERROR("Failed to copy file into cache:", std::string(ex.what()));
-        LOG_ERROR("File path:", sourcePath);
+        COMPLOG_ERROR("Failed to copy file into cache:", std::string(ex.what()));
+        COMPLOG_ERROR("File path:", sourcePath);
         return false;
     }
 }

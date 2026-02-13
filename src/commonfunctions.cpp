@@ -170,7 +170,7 @@ QString rectToString(const QRectF& iRect) {
 QRectF rectFromString(const QString& iString) {
     auto valuesSplitted = iString.split(":");
     if (valuesSplitted.count() < 4) {
-        LOG_WARNING("Invalid format of rect save:", iString);
+        COMPLOG_WARNING("Invalid format of rect save:", iString);
         return {};
     }
 
@@ -189,7 +189,7 @@ QImage readImage(const QString &filePath) {
     }
     auto imgExtension = QFileInfo(filePath).suffix().toLower();
     if (!mimeTypes.contains(imgExtension)) {
-        LOG_ERROR("Unsupportable format:", imgExtension);
+        COMPLOG_ERROR("Unsupportable format:", imgExtension);
         return {};
     }
 

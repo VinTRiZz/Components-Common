@@ -70,7 +70,7 @@ void ApplicationSettings::loadSettings(const QString& configPath) {
     }
 
     m_currentConfigsPath = configPath;
-    LOG_INFO("Loading settings from file:", configPath);
+    COMPLOG_INFO("Loading settings from file:", configPath);
 
     QSettings settings(configPath, QSettings::IniFormat);
 
@@ -87,7 +87,7 @@ void ApplicationSettings::loadSettings(const QString& configPath) {
         settings.endGroup();
     }
 
-    LOG_OK("Settings loaded");
+    COMPLOG_OK("Settings loaded");
 }
 
 void ApplicationSettings::saveSettings(const QString& configPath) const {
@@ -95,7 +95,7 @@ void ApplicationSettings::saveSettings(const QString& configPath) const {
         return saveSettings(m_currentConfigsPath);
     }
 
-    LOG_INFO("Saving settings to file:", configPath);
+    COMPLOG_INFO("Saving settings to file:", configPath);
 
     QSettings settings(configPath, QSettings::IniFormat);
     settings.clear();
@@ -108,7 +108,7 @@ void ApplicationSettings::saveSettings(const QString& configPath) const {
     }
     settings.sync();
 
-    LOG_OK("Settings saved");
+    COMPLOG_OK("Settings saved");
 }
 
 AppSetting::AppSetting()

@@ -6,7 +6,10 @@ if (${COMPONENTS_IS_ENABLED_QT})
         Qt5::Widgets
     )
 else()
-    COMPONENTS_CONFIGURE_COMPONENT(Common)
+    COMPONENTS_CONFIGURE_COMPONENT(Common
+        boost_system
+        boost_program_options
+    )
 endif()
 
 COMPONENTS_LINK_COMPONENT(Common Logger)

@@ -6,8 +6,62 @@
 #include <iomanip>
 #include <sstream>
 
+#include <signal.h>
+#include <cstring>
+
+#include <boost/stacktrace.hpp>
+#include <boost/core/demangle.hpp>
+
+#include <Components/Logger/Logger.h>
+
 namespace Common
 {
+
+#ifdef COMPONENTS_IS_ENABLED_QT
+void initApplication(QApplication &a) {
+    a.setApplicationName(PROJECT_NAME_STRING);
+    a.setApplicationVersion(PROJECT_VERSION_STRING);
+    a.setApplicationDisplayName(QString("%0 (версия %1)").arg(PROJECT_NAME_STRING, PROJECT_VERSION_STRING));
+}
+#endif // COMPONENTS_IS_ENABLED_QT
+
+void printStacktrace(int signo) {
+    COMPLOG_ERROR_SYNC("SIGNAL:", signo, "(", strsignal(signo), ")");
+    ::signal(signo, SIG_DFL);
+
+    COMPLOG_EMPTY_SYNC("STACK TRACE:");
+    COMPLOG_EMPTY_SYNC("====================================================");
+    boost::stacktrace::stacktrace stackTrace;
+    int traceLayer {0};
+    for (auto& line : stackTrace) {
+        COMPLOG_EMPTY_SYNC(traceLayer++, to_string(line));
+    }
+
+    COMPLOG_EMPTY_SYNC("====================================================");
+    ::exit(-1);
+}
+
+static std::function<void (int)> currentSignalProcessor;
+
+void processSignal(int signo) {
+    if (currentSignalProcessor) {
+        currentSignalProcessor(signo);
+        printStacktrace(signo);
+        exit (0);
+    }
+
+    printStacktrace(signo);
+    exit (1);
+}
+
+void setupBacktrace(std::function<void (int)> &&signalProcessor)
+{
+    currentSignalProcessor = std::move(signalProcessor);
+    ::signal(SIGSEGV, &processSignal);
+    ::signal(SIGABRT, &processSignal);
+    ::signal(SIGTERM, &processSignal);
+    ::signal(SIGFPE, &processSignal);
+}
 
 void terminalGotoXY(int x, int y)
 {

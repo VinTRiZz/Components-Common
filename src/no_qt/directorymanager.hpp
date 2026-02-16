@@ -34,8 +34,8 @@ public:
 
         UserDefined = 100, // Любые добавленные типы должны быть после этого значения
     };
-    std::filesystem::path getDirectory(DirectoryType dtype) const;
-    static std::filesystem::path getDirectoryStatic(DirectoryType dtype);
+    std::filesystem::path getDirectory(int dtype) const;
+    static std::filesystem::path getDirectoryStatic(int dtype);
 
     /**
      * @brief registerDirectory Зарегистрировать пользовательский тип директории

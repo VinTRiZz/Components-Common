@@ -52,12 +52,12 @@ void DirectoryManager::createDirectories(const MapT& dirsMap,
     }
 }
 
-std::filesystem::path DirectoryManager::getDirectory(DirectoryType dtype) const
+std::filesystem::path DirectoryManager::getDirectory(int dtype) const
 {
     return std::filesystem::path(m_rootDirectory.generic_string() + std::filesystem::path::preferred_separator) / m_directoryPaths.at(dtype);
 }
 
-std::filesystem::path DirectoryManager::getDirectoryStatic(DirectoryType dtype)
+std::filesystem::path DirectoryManager::getDirectoryStatic(int dtype)
 {
     auto& inst = getInstance();
     return inst.getDirectory(dtype);

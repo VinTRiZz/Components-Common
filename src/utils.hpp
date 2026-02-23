@@ -7,10 +7,6 @@
 
 namespace Common {
 
-#ifdef COMPONENTS_IS_ENABLED_QT
-void initApplication(QApplication& a);
-#endif // COMPONENTS_IS_ENABLED_QT
-
 void printStacktrace(int signo);
 void setupBacktrace(std::function<void(int)>&& signalProcessor);
 

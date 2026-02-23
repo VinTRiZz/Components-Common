@@ -67,7 +67,7 @@ QDir DirectoryManager::getDirectoryStatic(DirectoryType dtype)
     return inst.getDirectory(dtype);
 }
 
-void DirectoryManager::registerDirectory(int dtype, const std::string &dirp)
+void DirectoryManager::registerDirectory(int dtype, const QString &dirp)
 {
     if (dtype < int(DirectoryType::UserDefined)) {
         throw std::invalid_argument("DirectoryManager: Invalid directory type");

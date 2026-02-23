@@ -17,14 +17,6 @@
 namespace Common
 {
 
-#ifdef COMPONENTS_IS_ENABLED_QT
-void initApplication(QApplication &a) {
-    a.setApplicationName(PROJECT_NAME_STRING);
-    a.setApplicationVersion(PROJECT_VERSION_STRING);
-    a.setApplicationDisplayName(QString("%0 (версия %1)").arg(PROJECT_NAME_STRING, PROJECT_VERSION_STRING));
-}
-#endif // COMPONENTS_IS_ENABLED_QT
-
 void printStacktrace(int signo) {
     COMPLOG_ERROR_SYNC("SIGNAL:", signo, "(", strsignal(signo), ")");
     ::signal(signo, SIG_DFL);

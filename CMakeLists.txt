@@ -1,5 +1,4 @@
-
-if (${COMPONENTS_IS_ENABLED_QT})
+if (COMPONENTS_IS_ENABLED_QT)
     COMPONENTS_CONFIGURE_COMPONENT(Common
         Qt5::Core
         Qt5::Gui

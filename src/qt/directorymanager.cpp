@@ -56,12 +56,12 @@ void DirectoryManager::createDirectories(const MapT& dirsMap,
     }
 }
 
-QDir DirectoryManager::getDirectory(DirectoryType dtype) const
+QDir DirectoryManager::getDirectory(int dtype) const
 {
     return QDir(m_rootDirectory + QDir::separator() + m_directoryPaths.at(dtype));
 }
 
-QDir DirectoryManager::getDirectoryStatic(DirectoryType dtype)
+QDir DirectoryManager::getDirectoryStatic(int dtype)
 {
     auto& inst = getInstance();
     return inst.getDirectory(dtype);

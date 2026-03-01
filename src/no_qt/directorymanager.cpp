@@ -40,7 +40,7 @@ void DirectoryManager::createDirectories(const MapT& dirsMap,
 
     for (auto& [dirtype, dirpath] : dirsMap) {
         if (std::filesystem::exists(rootdir + std::filesystem::path::preferred_separator + dirpath.generic_string())) {
-            std::cout << "[  OK  ] DirectoryManager check: Directory exist. Path:" << dirpath << std::endl;
+            std::cout << "[  OK  ] DirectoryManager check: Directory exist. Path: " << dirpath << std::endl;
             continue;
         }
 
@@ -48,7 +48,7 @@ void DirectoryManager::createDirectories(const MapT& dirsMap,
             throw std::domain_error(
                 std::string(std::string("DirectoryManager: Error creating directory. Path: ") + dirpath.generic_string()));
         }
-        std::cout << "[  OK  ] DirectoryManager check: created directory. Path:" << dirpath << std::endl;
+        std::cout << "[  OK  ] DirectoryManager check: created directory. Path: " << dirpath << std::endl;
     }
 }
 

@@ -23,6 +23,7 @@ public:
      */
     enum DirectoryType : int {
         Config = 0,     // Конфигурации
+        Data,           // Данные приложения
         Logs,           // Логи приложения
         Plugins,        // Плагины приложения
         Backup,         // Бэкапы файлов
@@ -30,8 +31,8 @@ public:
 
         UserDefined = 100, // Любые добавленные типы должны быть после этого значения
     };
-    QDir getDirectory(DirectoryType dtype) const;
-    static QDir getDirectoryStatic(DirectoryType dtype);
+    QDir getDirectory(int dtype) const;
+    static QDir getDirectoryStatic(int dtype);
 
     /**
      * @brief registerDirectory Зарегистрировать пользовательский тип директории

@@ -40,9 +40,9 @@ public:
     void reset();
 
 private:
-    std::string     m_selfName;
-    AppSettingValue_t    m_defaultValue;
-    AppSettingValue_t    m_currentValue;
+    std::string         m_selfName;
+    AppSettingValue_t   m_defaultValue;
+    AppSettingValue_t   m_currentValue;
 
     std::map<std::string, AppSettingValue_t> m_availableValues;
 

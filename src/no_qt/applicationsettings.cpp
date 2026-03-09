@@ -7,6 +7,9 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/tokenizer.hpp>
 
+#include <filesystem>
+#include <fstream>
+
 namespace Common {
 
 namespace pt = boost::property_tree;
@@ -110,18 +113,28 @@ void ApplicationSettings::loadSettings(const std::string& configPath) {
     m_currentConfigsPath = configPath;
     COMPLOG_INFO("Loading settings from file:", configPath);
 
+    if (!std::filesystem::exists(configPath)) {
+        std::ofstream creator(configPath);
+        creator.close();
+        COMPLOG_INFO("Settings file not exist, created empty one");
+    }
+
     pt::ptree tree;
     try {
         pt::ini_parser::read_ini(configPath, tree);
-        COMPLOG_OK("Settings loaded");
     } catch (const pt::ini_parser_error& e) {
         COMPLOG_ERROR("Failed to parse settings:", e.what());
     }
 
+    m_settingSections.clear();
     for (auto& [groupName, group] : tree) {
         for (auto& [valueName, value] : group) {
-            if (auto pSett = getSetting(groupName, valueName); pSett) {
-                pSett->setValue(value.data());
+            if (auto pSett = addSetting(groupName, valueName); pSett) {
+                try {
+                    pSett->setValue(std::stoll(value.data()));
+                } catch ([[maybe_unused]] std::invalid_argument& ex) { // Ignore exception, it's normal
+                    pSett->setValue(value.data());
+                }
                 continue;
             }
             addSetting(groupName, valueName);
@@ -149,9 +162,9 @@ void ApplicationSettings::saveSettings(const std::string& configPath) const {
 
     try {
         pt::ini_parser::write_ini(configPath, tree);
-        std::cout << "Configuration saved" << std::endl;
+        COMPLOG_OK("Configuration saved");
     } catch (const pt::ini_parser_error& e) {
-        std::cerr << "Error saving: " << e.what() << std::endl;
+        COMPLOG_ERROR("Error saving:", e.what());
     }
 
     COMPLOG_OK("Settings saved");

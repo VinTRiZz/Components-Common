@@ -130,9 +130,21 @@ void ApplicationSettings::loadSettings(const std::string& configPath) {
     for (auto& [groupName, group] : tree) {
         for (auto& [valueName, value] : group) {
             if (auto pSett = addSetting(groupName, valueName); pSett) {
-                try {
-                    pSett->setValue(std::stoll(value.data()));
-                } catch ([[maybe_unused]] std::invalid_argument& ex) { // Ignore exception, it's normal
+                auto dataV = value.data();
+                auto dotCount = std::count(dataV.begin(), dataV.end(), '.');
+                if (dotCount == 0) {
+                    try {
+                        pSett->setValue(std::stoll(value.data()));
+                    } catch ([[maybe_unused]] std::invalid_argument& ex) { // Ignore exception, it's normal
+                        pSett->setValue(value.data());
+                    }
+                } else if (dotCount == 1) {
+                    try {
+                        pSett->setValue(std::stod(value.data()));
+                    } catch ([[maybe_unused]] std::invalid_argument& ex) { // Ignore exception, it's normal
+                        pSett->setValue(value.data());
+                    }
+                } else {
                     pSett->setValue(value.data());
                 }
                 continue;

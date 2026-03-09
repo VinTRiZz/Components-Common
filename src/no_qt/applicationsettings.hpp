@@ -61,7 +61,7 @@ public:
     ~ApplicationSettings();
 
     bool hasSetting(const std::string& section, const std::string& settingName);
-    void addSetting(const std::string& section, const std::string& settingName);
+    std::shared_ptr<AppSetting> addSetting(const std::string& section, const std::string& settingName);
     void addSetting(const std::string& section, const std::shared_ptr<AppSetting> &pSetting);
     std::shared_ptr<AppSetting> getSetting(const std::string& section, const std::string& settingName) const;
 

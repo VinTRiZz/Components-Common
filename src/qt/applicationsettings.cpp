@@ -31,11 +31,12 @@ bool ApplicationSettings::hasSetting(const QString &section, const QString &sett
     return (getSetting(section, settingName).use_count() != 0);
 }
 
-void ApplicationSettings::addSetting(const QString &section, const QString &settingName)
+std::shared_ptr<AppSetting> ApplicationSettings::addSetting(const QString &section, const QString &settingName)
 {
     auto pSett = std::make_shared<AppSetting>();
     pSett->setName(settingName);
     m_settingSections[section].insert(pSett);
+    return pSett;
 }
 
 void ApplicationSettings::addSetting(const QString &section, const std::shared_ptr<AppSetting>& pSetting)

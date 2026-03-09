@@ -20,11 +20,12 @@ bool ApplicationSettings::hasSetting(const std::string &section, const std::stri
     return (getSetting(section, settingName).use_count() != 0);
 }
 
-void ApplicationSettings::addSetting(const std::string &section, const std::string &settingName)
+std::shared_ptr<AppSetting> ApplicationSettings::addSetting(const std::string &section, const std::string &settingName)
 {
     auto pSett = std::make_shared<AppSetting>();
     pSett->setName(settingName);
     m_settingSections[section].insert(pSett);
+    return pSett;
 }
 
 void ApplicationSettings::addSetting(const std::string &section, const std::shared_ptr<AppSetting>& pSetting)

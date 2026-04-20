@@ -89,8 +89,7 @@ void DirectoryManager::checkup() {
 bool DirectoryManager::isDirectoryWritable(const std::filesystem::path &p) const
 {
     auto perms = std::filesystem::status(p).permissions();
-#warning "Wrong permission comparing. Need fix in case if self != owner"
-    return bool(perms & std::filesystem::perms::owner_write); // TODO: Добавить сравнение владельца директории с правами доступа
+    return (perms & std::filesystem::perms::owner_write) != std::filesystem::perms::none; // TODO: Check work
 }
 
 }

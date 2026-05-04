@@ -8,85 +8,31 @@
 
 namespace Common {
 
-DirectoryManager::DirectoryManager() {
-
-}
-
-DirectoryManager& DirectoryManager::getInstance() {
-    static DirectoryManager inst;
-    return inst;
-}
-
-void DirectoryManager::setRootPath(const QString &rootPath)
-{
-    if (!rootPath.isNull()) {
-        m_rootDirectory = QDir(rootPath).absolutePath();
-    } else {
-        m_rootDirectory = QString();
-    }
-    checkup();
-}
-
-template<typename MapT>
-void DirectoryManager::createDirectories(const MapT& dirsMap,
-                                         const QString& rootdir) {
-    QDir::current().mkdir(rootdir);
-    auto curdir = QDir(rootdir);
+bool DirectoryManager::init() {
+    QDir::current().mkdir(m_rootdir.c_str());
+    auto curdir = QDir(m_rootdir.c_str());
     if (    !curdir.exists() ||
-            !curdir.isReadable()) {
-        qCritical() << "Root dir:       " << rootdir;
+        !curdir.isReadable()) {
+        qCritical() << "Root dir:       " << m_rootdir.c_str();
         qCritical() << "Current dir:    " << QDir::currentPath();
-        throw std::invalid_argument(
-            "Invalid directory (not exist or not readable)");
+        qCritical() << "Invalid directory (not exist or not readable)";
+        return false;
     }
 
-    for (auto& [dirtype, dirpath] : dirsMap) {
-        if (QDir(rootdir + QDir::separator() + dirpath).exists()) {
-            qDebug()
-                << "[  OK  ] DirectoryManager check: Directory exist. Path:" << dirpath;
+    for (auto& [dirtype, dirpath] : m_dirPaths) {
+        if (QDir(dirpath).exists()) {
+            qInfo()
+            << "[  OK  ] DirectoryManager check: Directory exist. Path:" << dirpath;
             continue;
         }
 
         if (!curdir.mkdir(dirpath)) {
-            throw std::domain_error(
-                std::string(
-                    "DirectoryManager: Error creating directory. Path: " + dirpath.toStdString()));
+            qCritical() << "DirectoryManager: Error creating directory. Path: " <<  dirpath;
+            return false;
         }
-        qDebug() << "[  OK  ] DirectoryManager check: created directory. Path:" << dirpath;
+        qInfo() << "[  OK  ] DirectoryManager check: created directory. Path:" << dirpath;
     }
-}
-
-QDir DirectoryManager::getDirectory(int dtype) const
-{
-    return QDir(m_rootDirectory + QDir::separator() + m_directoryPaths.at(dtype));
-}
-
-QDir DirectoryManager::getDirectoryStatic(int dtype)
-{
-    auto& inst = getInstance();
-    return inst.getDirectory(dtype);
-}
-
-void DirectoryManager::registerDirectory(int dtype, const QString &dirp)
-{
-    if (dtype < int(DirectoryType::UserDefined)) {
-        throw std::invalid_argument("DirectoryManager: Invalid directory type");
-    }
-    m_directoryPaths[dtype] = dirp;
-}
-
-void DirectoryManager::checkup() {
-    if (m_rootDirectory.isNull()) {
-        m_rootDirectory = "Approot";
-    }
-
-    m_directoryPaths[DirectoryType::Config]       = "config";
-    m_directoryPaths[DirectoryType::Logs]         = "log";
-    m_directoryPaths[DirectoryType::Plugins]      = "plugins";
-    m_directoryPaths[DirectoryType::Backup]       = "backup";
-    m_directoryPaths[DirectoryType::Temporary]    = "tmp";
-
-    createDirectories(m_directoryPaths, m_rootDirectory);
+    return true;
 }
 
 }

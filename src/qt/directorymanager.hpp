@@ -2,54 +2,21 @@
 
 #ifdef COMPONENTS_IS_ENABLED_QT
 
-#include <QDir>
 #include <QString>
-#include <boost/noncopyable.hpp>
-#include <map>
+
+#include "../directorymanagerbase.hpp"
 
 namespace Common {
 
-class DirectoryManager : public boost::noncopyable {
-    DirectoryManager();
-
+/**
+ * @brief The DirectoryManager class Менеджер директорий, к которым приложение имеет доступ
+ */
+class DirectoryManager : public DirectoryManagerBase<DirectoryManager, QString>
+{
 public:
-    static DirectoryManager& getInstance();
-
-    void setRootPath(const QString& rootPath);
-
-    /**
-     * @brief The DirectoryType enum  Необходимые для работы приложения
-     * директории
-     */
-    enum DirectoryType : int {
-        Config = 0,     // Конфигурации
-        Data,           // Данные приложения
-        Logs,           // Логи приложения
-        Plugins,        // Плагины приложения
-        Backup,         // Бэкапы файлов
-        Temporary,      // Временные файлы
-
-        UserDefined = 100, // Любые добавленные типы должны быть после этого значения
-    };
-    QDir getDirectory(int dtype) const;
-    static QDir getDirectoryStatic(int dtype);
-
-    /**
-     * @brief registerDirectory Зарегистрировать пользовательский тип директории
-     * @param dtype             Тип директории
-     * @param dirp              Путь до директории
-     * @exception               Если dtype меньеш DirectoryType::UserDefined, исключение std::invalid_argument
-     */
-    void registerDirectory(int dtype, const QString& dirp);
+    bool init() override;
 
 private:
-    void checkup();
-
-    template<typename MapT>
-    void createDirectories(const MapT& dirsMap, const QString& rootdir);
-
-    QString m_rootDirectory;
-    std::map<int, QString> m_directoryPaths;
 };
 
 }

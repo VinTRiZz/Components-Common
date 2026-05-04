@@ -16,14 +16,12 @@ COMPONENTS_LINK_COMPONENT(Common Logger)
 target_precompile_headers(Common PUBLIC
 
     # Most usable: AppSettings
-    "src/applicationsettings.hpp"
-    "src/qt/applicationsettings.hpp"
-    "src/no_qt/applicationsettings.hpp"
+    "src/appsettings/qt/applicationsettings.hpp"
+    "src/appsettings/no_qt/applicationsettings.hpp"
 
     # Most usable: Dirmanager
-    "src/directorymanager.hpp"
-    "src/qt/directorymanager.hpp"
-    "src/no_qt/directorymanager.hpp"
+    "src/dirmanager/qt/directorymanager.hpp"
+    "src/dirmanager/no_qt/directorymanager.hpp"
 
     # Medium-used
     "src/mixins.hpp"
@@ -31,3 +29,5 @@ target_precompile_headers(Common PUBLIC
     "src/commonfunctions.hpp"
     "src/accessmanager.hpp"
 )
+
+COMPONENTS_ADD_COMPONENT_TEST(Common)

@@ -1,2 +1,7 @@
-#include "qt/applicationsettings.hpp"
-#include "no_qt/applicationsettings.hpp"
+// Common
+#include "appsettings/appsettingscommon.hpp"
+
+// Setting types
+#include "appsettings/appsetting.hpp"
+#include "appsettings/numericsetting.hpp"
+

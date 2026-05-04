@@ -1,2 +1,2 @@
-#include "qt/directorymanager.hpp"
-#include "no_qt/directorymanager.hpp"
+#include "dirmanager/qt/directorymanager.hpp"
+#include "dirmanager/no_qt/directorymanager.hpp"

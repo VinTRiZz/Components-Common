@@ -2,11 +2,13 @@
 
 #include "appsetting.hpp"
 
+#include <stdexcept>
+
 namespace Common
 {
 
 template <typename ValueT>
-class NumericSetting : public AppSettingBase
+class NumericSetting : public AppSetting
 {
     ValueT m_minV {std::numeric_limits<ValueT>::min()};
     ValueT m_maxV {std::numeric_limits<ValueT>::max()};
@@ -41,7 +43,7 @@ public:
 
     virtual bool setValue(const AppSettingValue_t& v) override {
         if (std::holds_alternative<std::monostate>(v)) {
-            return AppSettingBase::setValue(v);
+            return AppSetting::setValue(v);
         }
         if (!std::holds_alternative<ValueT>(v)) {
             throw std::invalid_argument("!!");
@@ -51,7 +53,7 @@ public:
         if (numV < m_minV || numV > m_maxV) {
             return false;
         }
-        return AppSettingBase::setValue(v);
+        return AppSetting::setValue(v);
     }
 };
 using AppIntSetting = NumericSetting<int64_t>;

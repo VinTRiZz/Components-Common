@@ -7,9 +7,9 @@
 namespace Common {
 
 /**
- * @brief The AppSettingBase class Basic value in settings
+ * @brief The AppSetting class Basic value in settings
  */
-class AppSettingBase
+class AppSetting
 {
 public:
     void setName(const std::string& name);

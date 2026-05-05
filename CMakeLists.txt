@@ -5,13 +5,12 @@ if (COMPONENTS_IS_ENABLED_QT)
         Qt5::Widgets
     )
 else()
-    COMPONENTS_CONFIGURE_COMPONENT(Common
-        boost_system
-        boost_program_options
-    )
+    COMPONENTS_CONFIGURE_COMPONENT(Common)
 endif()
 
 COMPONENTS_LINK_COMPONENT(Common Logger)
+COMPONENTS_LINK_COMPONENT(Common ExtraClasses)
+COMPONENTS_LINK_COMPONENT(Common Filework)
 
 target_precompile_headers(Common PUBLIC
 

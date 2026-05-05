@@ -1,4 +1,4 @@
-#include "utils.hpp"
+#include "utility.hpp"
 
 #include <stdexcept>
 #include <chrono>
@@ -6,7 +6,13 @@
 #include <iomanip>
 #include <sstream>
 
+#ifdef __linux__
 #include <signal.h>
+#include <termios.h>
+#else
+#include <windows.h> // TODO: Check it, one day when i even start Windows again
+#endif // Linux
+
 #include <cstring>
 
 #include <boost/stacktrace.hpp>
@@ -33,20 +39,17 @@ void printStacktrace(int signo) {
     ::exit(-1);
 }
 
-static std::function<void (int)> currentSignalProcessor;
+static std::function<bool (int)> currentSignalProcessor;
 
 void processSignal(int signo) {
-    if (currentSignalProcessor) {
-        currentSignalProcessor(signo);
-        printStacktrace(signo);
-        exit (0);
+    if (currentSignalProcessor && currentSignalProcessor(signo)) {
+        return;
     }
-
     printStacktrace(signo);
     exit (1);
 }
 
-void setupBacktrace(std::function<void (int)> &&signalProcessor)
+void setupBacktrace(std::function<bool (int)> &&signalProcessor)
 {
     currentSignalProcessor = std::move(signalProcessor);
     ::signal(SIGSEGV, &processSignal);
@@ -66,19 +69,51 @@ void terminalGotoXY(int x, int y)
 #endif // __linux__
 }
 
-std::pair<int, int> terminalGetXY()
+std::pair<unsigned, unsigned> terminalGetXY()
 {
+    std::pair<unsigned, unsigned> res;
 #ifdef __linux__
-    return {};
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    // Ask and get pos
+    std::cout << "\033[6n" << std::flush;
+    char buf[32];
+    int i = 0;
+    while (i < sizeof(buf) - 1) {
+        if (read(STDIN_FILENO, buf + i, 1) != 1) break;
+        if (buf[i] == 'R') break;
+        i++;
+    }
+    buf[i] = '\0';
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // Восстанавливаем настройки
+
+    sscanf(buf, "\033[%d;%d", &res.first, &res.second);
+    return res;
 #else
     HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);  // get console handle
     CONSOLE_SCREEN_BUFFER_INFO csbi;        // screen buffer information
     GetConsoleScreenBufferInfo(hc, &csbi);      // Get screen info & size
-    return std::make_pair(csbi.dwCursorPosition.X, csbi.dwCursorPosition.Y);
+    res.first = csbi.dwCursorPosition.X;
+    res.second = csbi.dwCursorPosition.Y;
+    return res;
 #endif // __linux__
 }
 
-std::string createRandomString(unsigned int stringSize) {
+int createRandomNumber(int min, int max)
+{
+    if (min >= max) throw std::invalid_argument("createRandomNumber: max >= min");
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> uni(min, max);
+    return uni(rng);
+}
+
+std::string createRandomString(unsigned int stringLength) {
     std::random_device rd;
     std::mt19937 gen(rd());
 
@@ -87,61 +122,28 @@ std::string createRandomString(unsigned int stringSize) {
     std::uniform_int_distribution<> dis(0, characters.size() - 1);
 
     std::string result;
-    result.reserve(stringSize);
-    for (unsigned int i = 0; i < stringSize; ++i)
+    result.reserve(stringLength);
+    for (unsigned int i = 0; i < stringLength; ++i)
         result += characters[dis(gen)];
 
     return result;
 }
 
-uint64_t getLinuxEpoch()
+uint64_t getEpoch()
 {
-#ifdef __linux__
-    std::chrono::system_clock::time_point now =
-            std::chrono::system_clock::now();
-
-    std::time_t now_t = std::chrono::system_clock::to_time_t(now);
-
-    return static_cast<int64_t>(now_t);
-#else
-    return 0;
-#endif // Linux
-}
-
-int generateNumber(int min, int max)
-{
-    if (min >= max) throw std::invalid_argument("generateNumber: max >= min");
-
-    // Create a random number generator
-    std::random_device rd;
-    std::mt19937 rng(rd());
-
-    // Define the distribution
-    std::uniform_int_distribution<int> uni(min, max);
-
-    // Generate and return the random number
-    return uni(rng);
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
 std::string getCurrentTimestampFormatted() {
-#ifdef QT_CORE
-    return QDateTime::currentDateTime()
-            .toString("yyyy-MM-dd_hh:mm:ss")
-            .toStdString();
-#else
     auto now = std::chrono::system_clock::now();
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 
     std::time_t now_c = std::chrono::system_clock::to_time_t(now_ms);
     std::tm now_tm;
 
-    // Use localtime_s for thread safety (Windows)
-#ifdef _WIN32
-    localtime_s(&now_tm, &now_c);
-#else
-    // Use localtime_r for thread safety (POSIX)
     localtime_r(&now_c, &now_tm);
-#endif
 
     std::ostringstream oss;
     oss << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S")
@@ -149,7 +151,6 @@ std::string getCurrentTimestampFormatted() {
         << (now_ms.time_since_epoch().count() % 1000);
 
     return oss.str();
-#endif // QT_CORE
 }
 
 }

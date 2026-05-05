@@ -16,18 +16,13 @@ COMPONENTS_LINK_COMPONENT(Common Logger)
 target_precompile_headers(Common PUBLIC
 
     # Most usable: AppSettings
-    "src/appsettings/qt/applicationsettings.hpp"
-    "src/appsettings/no_qt/applicationsettings.hpp"
+    "src/appsettings/appsetting.hpp"
 
     # Most usable: Dirmanager
-    "src/dirmanager/qt/directorymanager.hpp"
-    "src/dirmanager/no_qt/directorymanager.hpp"
+    "src/directorymanager.hpp"
 
     # Medium-used
-    "src/mixins.hpp"
-    "src/utils.hpp"
-    "src/commonfunctions.hpp"
-    "src/accessmanager.hpp"
+    "src/utility.hpp"
 )
 
 COMPONENTS_ADD_COMPONENT_TEST(Common)

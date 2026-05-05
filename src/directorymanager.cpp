@@ -1,8 +1,12 @@
 #include "directorymanager.hpp"
 
-#ifndef COMPONENTS_IS_ENABLED_QT
-
 namespace Common {
+
+
+DirectoryManager &DirectoryManager::getInstance() {
+    static DirectoryManager inst;
+    return inst;
+}
 
 bool DirectoryManager::init() {
     std::filesystem::create_directory(std::filesystem::current_path() / m_rootdir);
@@ -31,12 +35,43 @@ bool DirectoryManager::init() {
     return true;
 }
 
+void DirectoryManager::setRootPath(const std::filesystem::path &rootPath) {
+    m_rootdir = rootPath.wstring();
+    registerDirectory(DirectoryType::Config,    m_rootdir / "config");
+    registerDirectory(DirectoryType::Data,      m_rootdir / "data");
+    registerDirectory(DirectoryType::Logs,      m_rootdir / "log");
+    registerDirectory(DirectoryType::Plugins,   m_rootdir / "plugins");
+    registerDirectory(DirectoryType::Backup,    m_rootdir / "backup");
+    registerDirectory(DirectoryType::Temporary, m_rootdir / "tmp");
+    init();
+}
+
+std::filesystem::path DirectoryManager::getRootPath() const
+{
+    return m_rootdir;
+}
+
+std::filesystem::path DirectoryManager::getDirectory(int dtype) const {
+    auto targetIt = m_dirPaths.find(dtype);
+    if (targetIt == m_dirPaths.end()) {
+        return {};
+    }
+    return targetIt->second;
+}
+
+std::filesystem::path DirectoryManager::getDirectoryStatic(int dtype) {
+    auto& inst = getInstance();
+    return inst.getDirectory(dtype);
+}
+
+void DirectoryManager::registerDirectory(int dtype, const std::filesystem::path &dirp) {
+    m_dirPaths[dtype] = dirp;
+}
+
 bool DirectoryManager::isDirectoryWritable(const std::filesystem::path &p) const
 {
     auto perms = std::filesystem::status(p).permissions();
     return (perms & std::filesystem::perms::owner_write) != std::filesystem::perms::none; // TODO: Check work
 }
 
-}
-
-#endif // COMPONENTS_IS_ENABLED_QT
+} // namespace Common

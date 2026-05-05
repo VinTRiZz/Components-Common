@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <Components/Common/ApplicationSettings.h>
+#include <Components/Ecosystem/ApplicationSettings.h>
 
 using namespace Common;
 

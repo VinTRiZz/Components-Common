@@ -2,7 +2,7 @@
 
 #include "appsetting.hpp"
 
-#include <stdexcept>
+#include <iostream>
 
 namespace Common
 {
@@ -46,14 +46,13 @@ public:
             return AppSetting::setValue(v);
         }
         if (!std::holds_alternative<ValueT>(v)) {
-            throw std::invalid_argument("!!");
             return false;
         }
         auto& numV = std::get<ValueT>(v);
         if (numV < m_minV || numV > m_maxV) {
             return false;
         }
-        return AppSetting::setValue(v);
+        return AppSetting::setValue(numV);
     }
 };
 using AppIntSetting = NumericSetting<int64_t>;

@@ -24,9 +24,11 @@ inline std::string valueToString(const AppSettingValue_t& val) {
     if (std::holds_alternative<std::monostate>(val)) {
         return {};
     }
-    if (std::holds_alternative<int64_t>(val) |
-        std::holds_alternative<double>(val)) {
+    if (std::holds_alternative<int64_t>(val)) {
         return std::to_string(std::get<int64_t>(val));
+    }
+    if (std::holds_alternative<double>(val)) {
+        return std::to_string(std::get<double>(val));
     }
     if (std::holds_alternative<std::string>(val)) {
         return std::get<std::string>(val); // TODO: Use '\"' ?

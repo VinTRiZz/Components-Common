@@ -4,7 +4,7 @@
 
 using namespace Common;
 
-void checkSettingBasics(AppSettingBase& sett) {
+void checkSettingBasics(AppSetting& sett) {
     sett.setName("Example");
     ASSERT_EQ(sett.getName(), "Example");
 
@@ -16,7 +16,7 @@ void checkSettingBasics(AppSettingBase& sett) {
 }
 
 TEST(AppSettings, SettingBase) {
-    AppSettingBase sett;
+    AppSetting sett;
     checkSettingBasics(sett);
 
     ASSERT_TRUE(sett.setValue("150"));
@@ -42,10 +42,10 @@ TEST(AppSettings, NumericSetting) {
 
         sett.setMin(99.999);
         sett.setMax(300.001);
-        ASSERT_TRUE(sett.setValue(100));
+        ASSERT_TRUE(sett.setValue(100.0));
         ASSERT_FALSE(sett.setValue(99.998));
-        ASSERT_TRUE(sett.setValue(300));
+        ASSERT_TRUE(sett.setValue(300.0));
         ASSERT_FALSE(sett.setValue(300.002));
-        ASSERT_EQ(sett.getValueString(), "199");
+        ASSERT_EQ(sett.getValueString(), "300.000000");
     }
 }

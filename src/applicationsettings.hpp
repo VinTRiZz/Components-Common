@@ -5,3 +5,6 @@
 #include "appsettings/appsetting.hpp"
 #include "appsettings/numericsetting.hpp"
 
+// Settings object
+#include "appsettings/applicationsettings.hpp"
+

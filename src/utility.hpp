@@ -6,11 +6,8 @@
 
 namespace Common {
 
-/**
- * @brief printStacktrace   Prints stack trace from current point
- * @param signo             Signal to print info
- */
-void printStacktrace(int signo);
+void printStacktrace();
+void printStacktraceNoLogger();
 
 /**
  * @brief setupBacktrace    Set processor for common application error signal handling
@@ -18,6 +15,7 @@ void printStacktrace(int signo);
  * @note    Common usage - stop application to exit gracefully
  */
 void setupBacktrace(std::function<bool(int)>&& signalProcessor);
+void setupBacktrace();
 
 /**
  * @brief terminalGotoXY    Move cursor in terminal to coordinates

@@ -15,6 +15,7 @@
 
 #include <cstring>
 
+#define BOOST_STACKTRACE_USE_ADDR2LINE
 #include <boost/stacktrace.hpp>
 #include <boost/core/demangle.hpp>
 
@@ -23,10 +24,8 @@
 namespace Common
 {
 
-void printStacktrace(int signo) {
-    COMPLOG_ERROR_SYNC("SIGNAL:", signo, "(", strsignal(signo), ")");
-    ::signal(signo, SIG_DFL);
-
+void printStacktrace()
+{
     COMPLOG_EMPTY_SYNC("STACK TRACE:");
     COMPLOG_EMPTY_SYNC("====================================================");
     boost::stacktrace::stacktrace stackTrace;
@@ -36,7 +35,13 @@ void printStacktrace(int signo) {
     }
 
     COMPLOG_EMPTY_SYNC("====================================================");
-    ::exit(-1);
+}
+
+void printStacktraceNoLogger()
+{
+    std::cout << "================ STACK TRACE =================" << std::endl;
+    std::cout << boost::stacktrace::stacktrace() << std::endl;
+    std::cout << "==============================================" << std::endl;
 }
 
 static std::function<bool (int)> currentSignalProcessor;
@@ -45,13 +50,20 @@ void processSignal(int signo) {
     if (currentSignalProcessor && currentSignalProcessor(signo)) {
         return;
     }
-    printStacktrace(signo);
-    exit (1);
+    COMPLOG_ERROR_SYNC("SIGNAL:", signo, "(", strsignal(signo), ")");
+    printStacktrace();
+    ::signal(signo, SIG_DFL);
 }
 
 void setupBacktrace(std::function<bool (int)> &&signalProcessor)
 {
     currentSignalProcessor = std::move(signalProcessor);
+    setupBacktrace();
+}
+
+
+void setupBacktrace()
+{
     ::signal(SIGSEGV, &processSignal);
     ::signal(SIGABRT, &processSignal);
     ::signal(SIGTERM, &processSignal);

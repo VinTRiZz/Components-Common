@@ -18,6 +18,11 @@ void setupBacktrace(std::function<bool(int)>&& signalProcessor);
 void setupBacktrace();
 
 /**
+ * @brief restartSelf Function used to restart the binary completely
+ */
+void restartSelf();
+
+/**
  * @brief terminalGotoXY    Move cursor in terminal to coordinates
  * @param x
  * @param y

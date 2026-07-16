@@ -70,6 +70,41 @@ void setupBacktrace()
     ::signal(SIGFPE, &processSignal);
 }
 
+void restartSelf() {
+#ifdef __linux__
+    std::cerr << "RESTART SELF CALLED" << std::endl;
+
+    // Get self
+    char path[1024];
+    ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
+    if (len == -1) {
+        std::cerr << "RESTART SELF FAILED: Binary not found" << std::endl;
+        exit(1);
+    }
+    path[len] = '\0';
+
+    // Fork self
+    pid_t pid = fork();
+    if (pid < 0) {
+        std::cerr << "RESTART SELF FAILED: Fork failure, reason: " << std::strerror(errno) << std::endl;
+        exit(1);
+    }
+
+    // Free resources of parent
+    if (pid > 0) { exit(0); }
+
+    // Replace with child
+    char* args[] = {path, nullptr};
+    execv(path, args);
+
+    std::cerr << "RESTART SELF FAILED: Replace failure, reason: " << std::strerror(errno) << std::endl;
+    exit(1);
+#else
+    // TODO: Implement behaviour
+#error "Restart self is not implemented for Windows"
+#endif
+}
+
 void terminalGotoXY(int x, int y)
 {
 #ifdef __linux__

@@ -30,7 +30,7 @@ bool AppSetting::setValue(const AppSettingValue_t &v)
 
 bool AppSetting::isSet() const
 {
-    return !std::holds_alternative<std::monostate>(m_value);
+    return !std::holds_alternative<std::monostate>(m_value) && (!getValueString().empty()); // Empty string also mean not set
 }
 
 std::string AppSetting::getValueString() const

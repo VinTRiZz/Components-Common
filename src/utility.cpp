@@ -200,4 +200,26 @@ std::string getCurrentTimestampFormatted() {
     return oss.str();
 }
 
+std::string getCurrentTimestampFilename(bool containTime)
+{
+    auto now = std::chrono::system_clock::now();
+    auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now_ms);
+    std::tm now_tm;
+
+    localtime_r(&now_c, &now_tm);
+
+    std::ostringstream oss;
+    if (containTime) {
+        oss << std::put_time(&now_tm, "%Y%m%d_%H%M%S")
+        << '.' << std::setfill('0') << std::setw(3)
+        << (now_ms.time_since_epoch().count() % 1000);
+    } else {
+        oss << std::put_time(&now_tm, "%Y%m%d");
+    }
+
+    return oss.str();
+}
+
 }

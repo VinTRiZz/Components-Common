@@ -63,5 +63,6 @@ uint64_t getEpoch();
  * @return
  */
 std::string getCurrentTimestampFormatted();
+std::string getCurrentTimestampFilename(bool containTime);
 
 }

@@ -3,6 +3,7 @@
 #include <Components/Logger/Logger.h>
 #include <Components/Filework/ConfigParsing/IniParser.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 

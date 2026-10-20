@@ -26,15 +26,15 @@ namespace Common
 
 void printStacktrace()
 {
-    COMPLOG_EMPTY_SYNC("STACK TRACE:");
-    COMPLOG_EMPTY_SYNC("====================================================");
+    COMPLOG_SYNC_EMPTY("STACK TRACE:");
+    COMPLOG_SYNC_EMPTY("====================================================");
     boost::stacktrace::stacktrace stackTrace;
     int traceLayer {0};
     for (auto& line : stackTrace) {
-        COMPLOG_EMPTY_SYNC(traceLayer++, to_string(line));
+        COMPLOG_SYNC_EMPTY(traceLayer++, to_string(line));
     }
 
-    COMPLOG_EMPTY_SYNC("====================================================");
+    COMPLOG_SYNC_EMPTY("====================================================");
 }
 
 void printStacktraceNoLogger()
@@ -50,7 +50,7 @@ void processSignal(int signo) {
     if (currentSignalProcessor && currentSignalProcessor(signo)) {
         return;
     }
-    COMPLOG_ERROR_SYNC("SIGNAL:", signo, "(", strsignal(signo), ")");
+    COMPLOG_SYNC_ERROR("SIGNAL:", signo, "(", strsignal(signo), ")");
     printStacktrace();
     ::signal(signo, SIG_DFL);
 }

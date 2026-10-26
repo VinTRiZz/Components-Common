@@ -183,7 +183,7 @@ uint64_t getEpoch()
     return std::chrono::duration_cast<std::chrono::seconds>(duration).count();
 }
 
-std::string getCurrentTimestampFormatted() {
+std::string getCurrentTimestampFormatted(const std::string& tsFmt) {
     auto now = std::chrono::system_clock::now();
     auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 
@@ -193,7 +193,7 @@ std::string getCurrentTimestampFormatted() {
     localtime_r(&now_c, &now_tm);
 
     std::ostringstream oss;
-    oss << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S")
+    oss << std::put_time(&now_tm, tsFmt.c_str())
         << '.' << std::setfill('0') << std::setw(3)
         << (now_ms.time_since_epoch().count() % 1000);
 

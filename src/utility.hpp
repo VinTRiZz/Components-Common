@@ -59,10 +59,12 @@ std::string createRandomString(unsigned int stringLength);
 uint64_t getEpoch();
 
 /**
- * @brief getCurrentTimestampFormatted  Get timestamp in format "%Y-%m-%d %H:%M:%S"
+ * @brief getCurrentTimestampFormatted  Get timestamp in specified format
+ * @param tsFmt                         Format of a timestamp
  * @return
+ * @note Format of tsFmt must be compatible to std::put_time (for example, "%Y-%m-%d %H:%M:%S")
  */
-std::string getCurrentTimestampFormatted();
+std::string getCurrentTimestampFormatted(const std::string& tsFmt = "%Y-%m-%d %H:%M:%S");
 std::string getCurrentTimestampFilename(bool containTime);
 
 }

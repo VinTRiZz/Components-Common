@@ -15,7 +15,7 @@ void checkSettingBasics(AppSetting& sett) {
     ASSERT_EQ(sett.getValueString(), "");
 }
 
-TEST(AppSettings, SettingBase) {
+TEST(Components_Common, AppSettingsSettingBase) {
     AppSetting sett;
     checkSettingBasics(sett);
 
@@ -23,7 +23,7 @@ TEST(AppSettings, SettingBase) {
     ASSERT_EQ(sett.getValueString(), "150");
 }
 
-TEST(AppSettings, NumericSetting) {
+TEST(Components_Common, AppSettingsNumericSetting) {
     {
         AppIntSetting sett;
         checkSettingBasics(sett);

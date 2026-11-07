@@ -194,8 +194,7 @@ std::string getCurrentTimestampFormatted(const std::string& tsFmt) {
 
     std::ostringstream oss;
     oss << std::put_time(&now_tm, tsFmt.c_str())
-        << '.' << std::setfill('0') << std::setw(3)
-        << (now_ms.time_since_epoch().count() % 1000);
+        << '.' << std::setfill('0') << std::setw(3);
 
     return oss.str();
 }

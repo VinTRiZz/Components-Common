@@ -193,8 +193,7 @@ std::string getCurrentTimestampFormatted(const std::string& tsFmt) {
     localtime_r(&now_c, &now_tm);
 
     std::ostringstream oss;
-    oss << std::put_time(&now_tm, tsFmt.c_str())
-        << '.' << std::setfill('0') << std::setw(3);
+    oss << std::put_time(&now_tm, tsFmt.c_str());
 
     return oss.str();
 }

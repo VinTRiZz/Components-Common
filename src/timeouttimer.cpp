@@ -21,15 +21,13 @@ TimeoutTimer::TimeoutTimer(const std::string &timerName) :
 
 TimeoutTimer::~TimeoutTimer()
 {
-    if (d->m_isWorking.load(std::memory_order_relaxed)) {
-        cancel();
-    }
+    cancel();
     std::lock_guard<std::mutex> lock(d->m_completeMx); // Wait for thread to complete
 }
 
 void TimeoutTimer::cancel()
 {
-
+    d->m_isCanceled.store(true, std::memory_order_relaxed);
 }
 
 void TimeoutTimer::processTimeout(timerCallback_t &&timeoutCbk)
@@ -64,7 +62,9 @@ void TimeoutTimer::start(uint64_t timeoutMs, timerCallback_t&& timeoutCbk) noexc
             std::this_thread::yield();
             std::this_thread::sleep_for(std::chrono::milliseconds(std::min(currentVal + skipTimeCount, timeoutMs - currentVal)));
         }
-        processTimeout(std::move(cbk));
+        if (!d->m_isCanceled.load(std::memory_order_relaxed)) {
+            processTimeout(std::move(cbk));
+        }
     }).detach();
 }
 

@@ -1,5 +1,8 @@
 #include "timeouttimer.hpp"
 
+#include <string>
+#include <mutex>
+#include <atomic>
 #include <thread>
 #include <chrono>
 

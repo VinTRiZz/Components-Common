@@ -12,6 +12,8 @@ namespace Common {
 class AppSetting
 {
 public:
+    virtual ~AppSetting() = default;
+
     void setName(const std::string& name);
     std::string_view getName() const;
 
